@@ -1,0 +1,8 @@
+public/media/Videos/
+public/media/Songs/
+public/media/Images/*.mp4
+*.mp4
+*.m4v
+*.mov
+*.avi
+*.mkv

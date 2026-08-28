@@ -46,3 +46,5 @@ public/media/Songs/
 *.mov
 *.avi
 *.mkv
+
+.vercel

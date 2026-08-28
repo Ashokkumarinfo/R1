@@ -5,10 +5,10 @@ import { Vault, MediaItem, Folder, AnalyticsEvent, StorageBreakdown, DeviceType,
 import { INITIAL_VAULTS, INITIAL_MEDIA, INITIAL_FOLDERS, INITIAL_ANALYTICS } from '../seed-data';
 import { supabase, isSupabaseConfigured } from '../supabase/client';
 
-const VAULTS_KEY = 'lensvault_vaults_v3';
-const MEDIA_KEY = 'lensvault_media_v3';
-const FOLDERS_KEY = 'lensvault_folders_v3';
-const ANALYTICS_KEY = 'lensvault_analytics_v3';
+const VAULTS_KEY = 'vava_vaults_v4';
+const MEDIA_KEY = 'vava_media_v4';
+const FOLDERS_KEY = 'vava_folders_v4';
+const ANALYTICS_KEY = 'vava_analytics_v4';
 
 // BroadcastChannel for instant cross-tab real-time sync
 const syncChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
