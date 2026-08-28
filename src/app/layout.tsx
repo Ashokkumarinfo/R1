@@ -3,6 +3,7 @@ import { Poppins } from 'next/font/google';
 import '@/styles/globals.css';
 import { Navbar } from '@/components/ui/Navbar';
 import { Footer } from '@/components/ui/Footer';
+import { BackgroundMusicPlayer } from '@/components/ui/BackgroundMusicPlayer';
 
 const poppins = Poppins({ 
   weight: ['300', '400', '500', '600', '700', '800'],
@@ -44,6 +45,9 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+
+        {/* Global Floating Romantic BGM Player */}
+        <BackgroundMusicPlayer />
       </body>
     </html>
   );
