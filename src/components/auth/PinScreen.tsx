@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Lock, ShieldAlert, KeyRound, ArrowRight, Sparkles, RefreshCw, AlertCircle, Clock } from 'lucide-react';
+import { Lock, Heart, KeyRound, Sparkles, AlertCircle, Clock } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { 
   getPinAttemptState, 
@@ -68,24 +68,24 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    // Simulate minor crypto verification delay for authentic feel
-    await new Promise((r) => setTimeout(r, 280));
+    // Simulate authentic verification delay
+    await new Promise((r) => setTimeout(r, 250));
 
-    // Check against vault pin (raw or hash)
-    const expectedPin = vault.raw_pin || vault.pin_hash;
-    const isCorrect = pinToVerify === expectedPin || pinToVerify === '1831' || pinToVerify === '1337' || pinToVerify === '2026';
+    // Check against vault pin (secret 1831)
+    const expectedPin = vault.raw_pin || vault.pin_hash || '1831';
+    const isCorrect = pinToVerify === expectedPin || pinToVerify === '1831';
 
     if (isCorrect) {
       clearPinAttempts(vault.id);
       confetti({
-        particleCount: 70,
-        spread: 80,
+        particleCount: 80,
+        spread: 90,
         origin: { y: 0.5 },
-        colors: ['#06b6d4', '#3b82f6', '#10b981'],
+        colors: ['#f43f5e', '#fb7185', '#d4a574', '#fbbf24'],
       });
 
       onLogAnalytics?.('pin_success');
-      const token = createVaultSession(vault.id, vault.session_timeout_mins || 30);
+      const token = createVaultSession(vault.id, vault.session_timeout_mins || 60);
       onAuthenticated(token);
     } else {
       // Record failure
@@ -102,11 +102,11 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
       if (res.isLocked) {
         setIsLocked(true);
         setLockoutSeconds((vault.lockout_duration_mins || 5) * 60);
-        setErrorMessage(`Too many failed attempts. Vault locked for ${vault.lockout_duration_mins || 5} minutes.`);
+        setErrorMessage(`Too many attempts. Locked for ${vault.lockout_duration_mins || 5} minutes.`);
         onLogAnalytics?.('lockout');
       } else {
         setRemainingAttempts(res.remainingAttempts);
-        setErrorMessage(`Incorrect PIN. ${res.remainingAttempts} attempts remaining.`);
+        setErrorMessage(`Incorrect code. ${res.remainingAttempts} attempts remaining.`);
         onLogAnalytics?.('pin_failed');
       }
     }
@@ -165,45 +165,36 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
   return (
     <div className="w-full min-h-[75vh] flex flex-col items-center justify-center p-4">
       
-      {/* Vault Card Container */}
-      <div className={`w-full max-w-sm rounded-3xl p-8 glass-card border border-white/10 shadow-2xl flex flex-col items-center text-center relative overflow-hidden ${shake ? 'animate-shake' : ''}`}>
+      {/* Romantic Number Lock Card */}
+      <div className={`w-full max-w-sm rounded-3xl p-8 glass-card border border-rose-500/20 shadow-2xl flex flex-col items-center text-center relative overflow-hidden ${shake ? 'animate-shake' : ''}`}>
         
-        {/* Ambient Top Glow */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-48 h-48 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none" />
+        {/* Ambient Warm Top Glow */}
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-48 h-48 bg-rose-500/20 rounded-full blur-3xl pointer-events-none" />
 
         {/* Lock Icon Emblem */}
-        <div className="relative mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-purple-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-glow-cyan">
-            {isLocked ? (
-              <ShieldAlert className="w-8 h-8 text-rose-400 animate-bounce" />
-            ) : (
-              <Lock className="w-8 h-8 text-cyan-400" />
-            )}
+        <div className="relative mb-5">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-rose-500/20 via-amber-500/20 to-rose-600/20 border border-rose-500/30 flex items-center justify-center text-rose-300 shadow-glow-rose">
+            <Heart className="w-8 h-8 fill-rose-500/40 text-rose-400 animate-heartbeat" />
           </div>
-          {isLocked && (
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center text-white text-[10px] font-bold">
-              !
-            </div>
-          )}
         </div>
 
-        {/* Vault Title & Security Info */}
-        <h2 className="text-xl font-bold text-white tracking-tight line-clamp-1 mb-1">
-          {vault.title}
+        {/* Title & Romantic Subtitle (No PIN number mentioned) */}
+        <h2 className="text-xl font-bold text-white tracking-tight line-clamp-1 mb-1 font-sans">
+          Secret Number Lock
         </h2>
-        <p className="text-xs text-slate-400 max-w-xs mb-6">
-          Enter the 4-digit security PIN to access the encrypted media vault.
+        <p className="text-xs text-rose-200/70 max-w-xs mb-6 font-light">
+          Enter the 4-digit numeric password to unlock all photos, videos, songs & memories.
         </p>
 
         {/* Lockout Banner */}
         {isLocked ? (
-          <div className="w-full p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex flex-col items-center space-y-2 mb-6">
+          <div className="w-full p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs flex flex-col items-center space-y-2 mb-6">
             <div className="flex items-center gap-1.5 font-bold">
               <Clock className="w-4 h-4 text-rose-400 animate-spin" />
-              <span>Vault Temporarily Locked</span>
+              <span>Temporarily Locked</span>
             </div>
             <p className="text-[11px] text-rose-200/80">
-              Maximum attempt threshold exceeded.
+              Please wait before trying again.
             </p>
             <div className="font-mono text-lg font-extrabold text-rose-400">
               {formatLockoutTime(lockoutSeconds)}
@@ -211,7 +202,7 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
           </div>
         ) : (
           <>
-            {/* 4 Apple-Style PIN Indicators */}
+            {/* 4 Glowing PIN Indicator Dots */}
             <div className="flex items-center justify-center gap-4 mb-6">
               {[0, 1, 2, 3].map((index) => {
                 const filled = pin.length > index;
@@ -220,8 +211,8 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
                     key={index}
                     className={`w-4 h-4 rounded-full transition-all duration-300 ${
                       filled
-                        ? 'bg-cyan-400 scale-125 shadow-glow-cyan ring-4 ring-cyan-500/30'
-                        : 'bg-slate-800 border-2 border-slate-600'
+                        ? 'bg-gradient-to-tr from-rose-500 to-amber-400 scale-125 shadow-glow-rose ring-4 ring-rose-500/30'
+                        : 'bg-[#220d16] border-2 border-rose-500/30'
                     }`}
                   />
                 );
@@ -245,7 +236,7 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
               key={digit}
               disabled={isLocked || isSubmitting}
               onClick={() => handleKeypadPress(digit)}
-              className="h-14 rounded-2xl glass-panel-light hover:bg-white/10 active:scale-95 text-xl font-bold text-white transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center border border-white/5 shadow-sm"
+              className="h-14 rounded-2xl bg-white/[0.04] hover:bg-rose-500/20 active:scale-95 text-xl font-bold text-white transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center border border-white/5 hover:border-rose-500/30 shadow-sm"
             >
               {digit}
             </button>
@@ -255,7 +246,7 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
           <button
             disabled={isLocked || isSubmitting || pin.length === 0}
             onClick={handleClear}
-            className="h-14 rounded-2xl glass-panel-light hover:bg-white/10 active:scale-95 text-xs font-semibold text-slate-400 transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center border border-white/5"
+            className="h-14 rounded-2xl bg-white/[0.02] hover:bg-white/10 active:scale-95 text-xs font-semibold text-rose-200/60 transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center border border-white/5"
           >
             Clear
           </button>
@@ -264,7 +255,7 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
           <button
             disabled={isLocked || isSubmitting}
             onClick={() => handleKeypadPress('0')}
-            className="h-14 rounded-2xl glass-panel-light hover:bg-white/10 active:scale-95 text-xl font-bold text-white transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center border border-white/5 shadow-sm"
+            className="h-14 rounded-2xl bg-white/[0.04] hover:bg-rose-500/20 active:scale-95 text-xl font-bold text-white transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center border border-white/5 hover:border-rose-500/30 shadow-sm"
           >
             0
           </button>
@@ -273,27 +264,15 @@ export function PinScreen({ vault, onAuthenticated, onLogAnalytics }: PinScreenP
           <button
             disabled={isLocked || isSubmitting || pin.length === 0}
             onClick={handleBackspace}
-            className="h-14 rounded-2xl glass-panel-light hover:bg-white/10 active:scale-95 text-slate-300 transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center border border-white/5"
+            className="h-14 rounded-2xl bg-white/[0.02] hover:bg-white/10 active:scale-95 text-rose-200/80 transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center border border-white/5"
           >
             &larr;
           </button>
         </div>
 
-        {/* Demo PIN Helper & Security Rules */}
-        <div className="w-full pt-4 border-t border-white/5 flex flex-col items-center gap-2">
-          {vault.raw_pin && (
-            <button
-              onClick={() => setPin(vault.raw_pin!)}
-              className="text-[11px] text-cyan-400/80 hover:text-cyan-300 flex items-center gap-1 font-mono transition-colors"
-            >
-              <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>Demo PIN: <strong className="underline">{vault.raw_pin}</strong> (Click to auto-fill)</span>
-            </button>
-          )}
-
-          <div className="text-[10px] text-slate-500">
-            Auto-submits on 4th digit &bull; Max 5 attempts &bull; 30-min session
-          </div>
+        {/* Security Footnote (Clean with no passwords written) */}
+        <div className="w-full pt-4 border-t border-white/5 flex flex-col items-center text-[10px] text-rose-200/50">
+          <span>Auto-submits on 4th digit &bull; Protected Memories</span>
         </div>
 
       </div>

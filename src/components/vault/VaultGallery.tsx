@@ -15,11 +15,13 @@ import {
   Heart, 
   Sparkles, 
   ArrowUpDown, 
+  Lock,
   Eye
 } from 'lucide-react';
 import { Vault, MediaItem, Folder, MediaType } from '@/types';
 import { formatBytes, formatDuration } from '@/lib/formatters';
 import { UniversalMediaPlayer } from '../player/UniversalMediaPlayer';
+import { clearVaultSession } from '@/lib/pin-security';
 
 interface VaultGalleryProps {
   vault: Vault;
@@ -33,6 +35,7 @@ export function VaultGallery({
   vault,
   mediaItems,
   folders,
+  onLockVault,
   onLogAnalytics,
 }: VaultGalleryProps) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,6 +126,11 @@ export function VaultGallery({
     });
   };
 
+  const handleLock = () => {
+    clearVaultSession(vault.id);
+    onLockVault?.();
+  };
+
   return (
     <div className="w-full min-h-screen pb-20">
       
@@ -172,9 +180,18 @@ export function VaultGallery({
                 className="flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold bg-gradient-to-r from-rose-500 via-amber-500 to-rose-600 hover:from-rose-400 hover:to-amber-400 text-white shadow-glow-warm transition-all hover:scale-105"
               >
                 <Download className="w-4 h-4" />
-                <span>Save All Memories ({filteredItems.length})</span>
+                <span>Save All ({filteredItems.length})</span>
               </button>
             )}
+
+            <button
+              onClick={handleLock}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-xs font-semibold bg-white/5 hover:bg-rose-500/20 text-rose-200 border border-white/10 hover:border-rose-500/30 transition-all hover:scale-105"
+              title="Lock Gallery"
+            >
+              <Lock className="w-4 h-4 text-rose-400" />
+              <span>Lock</span>
+            </button>
           </div>
         </div>
 
